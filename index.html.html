@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaGuard AI — Verify every pack. Report every reaction.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFBF7;
+  --ink:#0E3B2E;
+  --verify:#17A05D;
+  --alert:#C63A2B;
+  --caution:#DA9E00;
+  --batch:#5E6A64;
+  --line:#D9E0DA;
+  --card:#FFFFFF;
+  --display:'Archivo',sans-serif;
+  --body:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--verify);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--batch)}
+.display{font-family:var(--display);font-variation-settings:'wdth' 118;font-weight:850;line-height:1.02;letter-spacing:-.01em}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(250,251,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:30px;height:30px;flex:0 0 30px}
+.logo-word{font-family:var(--display);font-variation-settings:'wdth' 112;font-weight:800;font-size:1.05rem;letter-spacing:.01em}
+.logo-word span{color:var(--verify)}
+.nav-links{display:flex;gap:26px;list-style:none;align-items:center}
+.nav-links a{text-decoration:none;font-size:.9rem;font-weight:500;color:var(--ink);opacity:.85}
+.nav-links a:hover{opacity:1;color:var(--verify)}
+.btn{display:inline-block;font-family:var(--body);font-weight:600;font-size:.9rem;padding:11px 20px;border-radius:6px;border:2px solid var(--ink);text-decoration:none;cursor:pointer;transition:transform .12s ease,background .12s ease,color .12s ease}
+.btn-solid{background:var(--ink);color:var(--paper)}
+.btn-solid:hover{background:var(--verify);border-color:var(--verify)}
+.btn-ghost{background:transparent;color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+.menu-toggle{display:none;background:none;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-family:var(--mono);font-size:.75rem;cursor:pointer;color:var(--ink)}
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 64px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.hero h1{font-size:clamp(2.3rem,4.6vw,3.7rem);margin:18px 0 20px}
+.hero h1 .v{color:var(--verify)}
+.hero p.lede{font-size:1.08rem;max-width:34rem;color:#2C4A40}
+.hero-ctas{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.hero-note{margin-top:18px;font-family:var(--mono);font-size:.72rem;color:var(--batch)}
+
+/* ---------- verification demo ---------- */
+.demo{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px;box-shadow:0 18px 40px -24px rgba(14,59,46,.25)}
+.demo-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.demo-head .eyebrow{color:var(--ink)}
+.demo-dot{width:9px;height:9px;border-radius:50%;background:var(--verify);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.strip{position:relative;background:linear-gradient(135deg,#EDF3EE,#F7FAF6);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;gap:16px;align-items:center;overflow:hidden}
+.blister{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;flex:1}
+.pill{aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0%,#DCE7DE 60%,#C4D4C7 100%);border:1px solid #C9D6CC}
+.qr{width:88px;height:88px;flex:0 0 88px;background:
+  conic-gradient(var(--ink) 25%,transparent 0 50%,var(--ink) 0 75%,transparent 0) 0 0/22px 22px,
+  var(--card);border:3px solid var(--ink);border-radius:6px;position:relative}
+.scanline{position:absolute;left:0;right:0;height:3px;background:var(--verify);top:0;opacity:0;border-radius:2px}
+.scanning .scanline{opacity:1;animation:scan .9s ease-in-out 2}
+@keyframes scan{0%{top:4%}50%{top:92%}100%{top:4%}}
+.strip-meta{font-family:var(--mono);font-size:.68rem;color:var(--batch);margin-top:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.demo-actions{display:flex;gap:10px;margin-top:16px}
+.scan-btn{flex:1;font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;padding:12px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;color:var(--ink);transition:border-color .12s,background .12s}
+.scan-btn:hover{border-color:var(--ink)}
+.scan-btn[disabled]{opacity:.5;cursor:wait}
+.result{margin-top:16px;border-radius:9px;padding:16px;display:none;border:1.5px solid}
+.result.show{display:block;animation:rise .3s ease}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.result.ok{border-color:var(--verify);background:#EDF8F1}
+.result.bad{border-color:var(--alert);background:#FCF0EE}
+.result-stamp{font-family:var(--display);font-variation-settings:'wdth' 120;font-weight:850;font-size:1.15rem;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.result.ok .result-stamp{color:var(--verify)}
+.result.bad .result-stamp{color:var(--alert)}
+.result-rows{margin-top:10px;font-family:var(--mono);font-size:.74rem;color:var(--ink)}
+.result-rows div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line)}
+.result-rows div:last-child{border-bottom:none}
+.result .report-link{display:inline-block;margin-top:10px;font-size:.82rem;font-weight:600;color:var(--alert);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:var(--body)}
+
+/* ---------- regulatory strip ---------- */
+.reg{border-bottom:1px solid var(--line);background:var(--card)}
+.reg-inner{display:flex;align-items:center;gap:14px;padding:16px 0;flex-wrap:wrap}
+.reg-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--batch);margin-right:6px}
+.reg-badge{font-family:var(--mono);font-size:.76rem;padding:7px 13px;border:1px solid var(--line);border-radius:99px;color:var(--ink);background:var(--paper)}
+
+/* ---------- sections ---------- */
+section{padding:78px 0}
+.sec-head{max-width:44rem;margin-bottom:44px}
+.sec-head h2{font-size:clamp(1.7rem,3vw,2.4rem);margin-top:14px}
+.sec-head p{margin-top:14px;color:#2C4A40}
+
+/* problem */
+.problem{background:var(--ink);color:var(--paper)}
+.problem .eyebrow{color:#8FB8A6}
+.problem .sec-head p{color:#C7DACF}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.stat{border:1px solid #2C5847;border-radius:12px;padding:30px}
+.stat-num{font-family:var(--display);font-variation-settings:'wdth' 120;font-weight:850;font-size:clamp(2.4rem,5vw,3.6rem);line-height:1;color:#5FD69A}
+.stat h3{font-size:1.05rem;margin:14px 0 8px}
+.stat p{font-size:.92rem;color:#C7DACF}
+.stat-src{display:block;margin-top:14px;font-family:var(--mono);font-size:.68rem;color:#7EA894}
+
+/* platform */
+.cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cap{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:28px;transition:transform .15s ease,box-shadow .15s ease}
+.cap:hover{transform:translateY(-3px);box-shadow:0 14px 30px -20px rgba(14,59,46,.3)}
+.cap-icon{width:44px;height:44px;border-radius:9px;background:#EDF8F1;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.cap h3{font-size:1.08rem;margin-bottom:8px}
+.cap p{font-size:.93rem;color:#3B564C}
+.cap-tag{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--verify)}
+
+/* flow */
+.flow{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:step}
+.flow-step{padding:26px 22px;border-left:1px solid var(--line);position:relative}
+.flow-step:first-child{border-left:none}
+.flow-num{font-family:var(--mono);font-size:.72rem;color:var(--verify);letter-spacing:.1em}
+.flow-step h3{font-size:1rem;margin:10px 0 8px}
+.flow-step p{font-size:.88rem;color:#3B564C}
+
+/* compliance */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.comp{border:1px solid var(--line);border-left:4px solid var(--verify);border-radius:8px;padding:24px;background:var(--card)}
+.comp h3{font-size:1rem;margin-bottom:6px}
+.comp p{font-size:.9rem;color:#3B564C}
+.comp .mono{font-family:var(--mono);font-size:.7rem;color:var(--batch);display:block;margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.phase{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:30px;position:relative}
+.phase-tag{position:absolute;top:-13px;left:26px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;padding:5px 13px;border-radius:99px}
+.phase h3{font-size:1.15rem;margin:8px 0 14px}
+.phase ul{list-style:none}
+.phase li{font-size:.92rem;color:#3B564C;padding:7px 0 7px 24px;position:relative;border-bottom:1px dashed var(--line)}
+.phase li:last-child{border-bottom:none}
+.phase li::before{content:"";position:absolute;left:2px;top:14px;width:9px;height:9px;border-radius:50%;border:2px solid var(--verify)}
+
+/* cta */
+.cta{background:var(--ink);color:var(--paper);text-align:center}
+.cta h2{font-size:clamp(1.9rem,3.4vw,2.8rem);max-width:36rem;margin:14px auto 18px}
+.cta p{color:#C7DACF;max-width:32rem;margin:0 auto 30px}
+.cta .eyebrow{color:#8FB8A6}
+.cta .btn-solid{background:var(--verify);border-color:var(--verify)}
+.cta .btn-solid:hover{background:#5FD69A;border-color:#5FD69A;color:var(--ink)}
+
+/* footer */
+footer{padding:34px 0;border-top:1px solid var(--line)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.foot p{font-size:.82rem;color:var(--batch)}
+.foot .mono{font-family:var(--mono);font-size:.7rem;color:var(--batch)}
+
+/* ---------- demo player modal ---------- */
+.vmodal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(7,26,20,.8);backdrop-filter:blur(5px);padding:20px}
+.vmodal.open{display:flex}
+.player{width:min(940px,100%);background:#07211A;border-radius:14px;overflow:hidden;border:1px solid #2C5847;box-shadow:0 44px 90px -30px rgba(0,0,0,.65)}
+.player-top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #17362C}
+.player-top .eyebrow{color:#8FB8A6}
+.vclose{background:none;border:1px solid #2C5847;color:#C7DACF;border-radius:6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;padding:7px 13px;cursor:pointer}
+.vclose:hover{border-color:#5FD69A;color:#5FD69A}
+.screen{position:relative;aspect-ratio:16/9;background:radial-gradient(130% 130% at 50% -10%,#12493A 0%,#07211A 65%);overflow:hidden}
+.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:radial-gradient(rgba(255,255,255,.045) 1px,transparent 1px);background-size:3px 3px}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transform:scale(.97);transition:opacity .55s ease,transform .55s ease;pointer-events:none}
+.scene.on{opacity:1;transform:scale(1)}
+.sc-title{font-family:var(--display);font-variation-settings:'wdth' 118;font-weight:850;color:#EAF6EE;font-size:clamp(1.1rem,2.6vw,1.7rem);text-align:center;padding:0 24px}
+.sc-sub{font-family:var(--mono);font-size:clamp(.62rem,1.4vw,.76rem);letter-spacing:.1em;color:#8FB8A6;text-transform:uppercase;text-align:center;padding:0 24px}
+/* scene 1: phone scanning */
+.ph{width:clamp(120px,22%,190px);aspect-ratio:9/17;border-radius:22px;border:3px solid #2C5847;background:#0A2B22;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 50px -20px rgba(0,0,0,.6)}
+.ph::before{content:"";position:absolute;top:9px;width:34%;height:5px;border-radius:99px;background:#17362C}
+.vf{width:78%;aspect-ratio:1/1;border:2px dashed #5FD69A;border-radius:10px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.vf .mini-qr{width:56%;height:56%;background:conic-gradient(#EAF6EE 25%,transparent 0 50%,#EAF6EE 0 75%,transparent 0) 0 0/14px 14px,#0A2B22;border:2px solid #EAF6EE;border-radius:4px}
+.vf .vline{position:absolute;left:6%;right:6%;height:3px;background:#5FD69A;border-radius:2px;top:8%;box-shadow:0 0 14px #5FD69A}
+.scene.on .vf .vline{animation:vscan 1.5s ease-in-out infinite}
+@keyframes vscan{0%,100%{top:8%}50%{top:88%}}
+/* scene 2 & 3: verdict stamps */
+.stamp{font-family:var(--display);font-variation-settings:'wdth' 122;font-weight:900;font-size:clamp(1.6rem,4.4vw,2.9rem);letter-spacing:.03em;padding:14px 34px;border-radius:12px;border:3px solid;transform:rotate(-3deg)}
+.stamp.g{color:#5FD69A;border-color:#5FD69A;background:rgba(95,214,154,.09);box-shadow:0 0 40px -8px rgba(95,214,154,.5)}
+.stamp.r{color:#FF7A66;border-color:#FF7A66;background:rgba(255,122,102,.08);box-shadow:0 0 40px -8px rgba(255,122,102,.45)}
+.scene.on .stamp{animation:slam .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes slam{from{transform:rotate(-3deg) scale(1.7);opacity:0}to{transform:rotate(-3deg) scale(1);opacity:1}}
+.vrows{font-family:var(--mono);font-size:clamp(.6rem,1.5vw,.78rem);color:#C7DACF;text-align:left;min-width:min(340px,80%)}
+.vrows div{display:flex;justify-content:space-between;gap:28px;padding:5px 0;border-bottom:1px dashed #2C5847;opacity:0;transform:translateY(6px)}
+.scene.on .vrows div{animation:rowin .4s ease forwards}
+.scene.on .vrows div:nth-child(1){animation-delay:.35s}
+.scene.on .vrows div:nth-child(2){animation-delay:.55s}
+.scene.on .vrows div:nth-child(3){animation-delay:.75s}
+@keyframes rowin{to{opacity:1;transform:none}}
+/* scene 4: patient words -> report */
+.morph{display:flex;align-items:center;gap:clamp(10px,3vw,26px);flex-wrap:wrap;justify-content:center;padding:0 20px}
+.bubble{max-width:min(280px,42vw);background:#0F332A;border:1px solid #2C5847;border-radius:14px 14px 14px 4px;padding:14px 16px;color:#EAF6EE;font-size:clamp(.72rem,1.7vw,.9rem);font-style:italic}
+.arrow{font-family:var(--mono);color:#5FD69A;font-size:clamp(1rem,2.6vw,1.5rem)}
+.scene.on .arrow{animation:pulse 1.4s infinite}
+.rcard{background:#0F332A;border:1.5px solid #5FD69A;border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:clamp(.55rem,1.4vw,.7rem);color:#C7DACF;text-align:left}
+.rcard b{color:#5FD69A;display:block;margin-bottom:6px;letter-spacing:.08em}
+/* scene 5: ledger */
+.chain{display:flex;align-items:center;gap:clamp(4px,1.4vw,10px)}
+.blk{width:clamp(40px,8vw,66px);aspect-ratio:1/1;border:2px solid #2C5847;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:clamp(.5rem,1.2vw,.68rem);color:#8FB8A6;background:#0A2B22;opacity:.35}
+.lnk{width:clamp(10px,2.4vw,20px);height:2px;background:#2C5847}
+.scene.on .blk{animation:lit .45s ease forwards}
+.scene.on .blk:nth-of-type(1){animation-delay:.15s}
+.scene.on .blk:nth-of-type(3){animation-delay:.45s}
+.scene.on .blk:nth-of-type(5){animation-delay:.75s}
+.scene.on .blk:nth-of-type(7){animation-delay:1.05s}
+.scene.on .blk:nth-of-type(9){animation-delay:1.35s}
+@keyframes lit{to{opacity:1;border-color:#5FD69A;color:#5FD69A;box-shadow:0 0 22px -6px rgba(95,214,154,.55)}}
+/* player controls */
+.player-bar{display:flex;align-items:center;gap:14px;padding:14px 18px;border-top:1px solid #17362C}
+.pbtn{background:#5FD69A;color:#07211A;border:none;border-radius:7px;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;font-weight:600;padding:9px 15px;cursor:pointer}
+.pbtn.alt{background:transparent;color:#C7DACF;border:1px solid #2C5847}
+.pbtn.alt:hover{border-color:#5FD69A;color:#5FD69A}
+.segs{display:flex;gap:6px;flex:1}
+.seg{flex:1;height:5px;border-radius:99px;background:#17362C;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:#5FD69A;border-radius:99px}
+.seg.done i{width:100%}
+.seg.live i{animation:fillseg var(--segdur,4.6s) linear forwards}
+@keyframes fillseg{from{width:0}to{width:100%}}
+.pcaption{font-family:var(--mono);font-size:.66rem;color:#8FB8A6;letter-spacing:.06em;min-width:120px;text-align:right}
+@media (max-width:640px){.pcaption{display:none}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+@media (max-width:900px){
+  .hero-grid,.stats,.cap-grid,.comp-grid,.road{grid-template-columns:1fr}
+  .flow-grid{grid-template-columns:1fr 1fr}
+  .flow-step{border-left:none;border-top:1px solid var(--line)}
+  .flow-step:nth-child(-n+2){border-top:none}
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;padding:18px 24px;gap:16px;align-items:flex-start}
+  .nav-links.open{display:flex}
+  .menu-toggle{display:block}
+}
+@media (max-width:560px){
+  .flow-grid{grid-template-columns:1fr}
+  .flow-step{border-top:1px solid var(--line)}
+  .flow-step:first-child{border-top:none}
+  .demo-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="PharmaGuard AI home">
+      <svg class="logo-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 2 L28 7 V16 C28 24 22.5 28.5 16 30 C9.5 28.5 4 24 4 16 V7 Z" fill="#0E3B2E"/>
+        <rect x="14" y="9" width="4" height="14" rx="1.4" fill="#5FD69A"/>
+        <rect x="9" y="14" width="14" height="4" rx="1.4" fill="#5FD69A"/>
+      </svg>
+      <span class="logo-word">PharmaGuard<span>&nbsp;AI</span></span>
+    </a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links" onclick="toggleMenu(this)">MENU</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#problem">The problem</a></li>
+      <li><a href="#platform">Platform</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a class="btn btn-solid" href="#contact">Request pilot access</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Drug safety infrastructure · India</span>
+      <h1 class="display">Verify every pack.<br>Report every <span class="v">reaction.</span></h1>
+      <p class="lede">PharmaGuard AI puts counterfeit detection and adverse-reaction reporting into one scan. Patients and pharmacists authenticate a medicine in seconds — and when something goes wrong, reporting it takes one tap, not one form.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-solid" href="#contact">Request pilot access</a>
+        <button class="btn btn-ghost" onclick="openDemo()">▶ See how it works</button>
+      </div>
+      <p class="hero-note">PROTOTYPE STAGE · BUILT FOR THE INDIAN PHARMACEUTICAL SUPPLY CHAIN</p>
+    </div>
+
+    <!-- Interactive verification demo -->
+    <div class="demo" aria-label="Interactive verification demo">
+      <div class="demo-head">
+        <span class="eyebrow">Live verification demo</span>
+        <span class="demo-dot" aria-hidden="true"></span>
+      </div>
+      <div class="strip" id="strip">
+        <div class="blister" aria-hidden="true">
+          <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+          <div class="pill"></div><div class="pill"></div><div class="pill"></div><div class="pill"></div>
+        </div>
+        <div class="qr" aria-hidden="true"><div class="scanline"></div></div>
+      </div>
+      <div class="strip-meta">
+        <span id="meta-batch">BATCH — · —</span>
+        <span id="meta-exp">EXP — / —</span>
+      </div>
+      <div class="demo-actions">
+        <button class="scan-btn" id="btn-ok" onclick="runScan('ok')">▸ SCAN GENUINE SAMPLE</button>
+        <button class="scan-btn" id="btn-bad" onclick="runScan('bad')">▸ SCAN SUSPECT SAMPLE</button>
+      </div>
+
+      <div class="result ok" id="res-ok" role="status">
+        <div class="result-stamp">✓ VERIFIED GENUINE</div>
+        <div class="result-rows">
+          <div><span>Product</span><span>Amoxicillin 500 mg</span></div>
+          <div><span>Batch</span><span>AMX-2416-B</span></div>
+          <div><span>Manufactured</span><span>03 / 2026 · Unit II, Baddi</span></div>
+          <div><span>Scan history</span><span>First patient scan</span></div>
+          <div><span>Audit log</span><span>Entry written ✓</span></div>
+        </div>
+      </div>
+
+      <div class="result bad" id="res-bad" role="alert">
+        <div class="result-stamp">✕ NOT VERIFIED</div>
+        <div class="result-rows">
+          <div><span>Code status</span><span>Already redeemed 47×</span></div>
+          <div><span>Packaging match</span><span>Font &amp; hologram mismatch</span></div>
+          <div><span>Risk flag</span><span>Possible counterfeit</span></div>
+        </div>
+        <button class="report-link" onclick="alert('In the live product this opens a guided, NLP-assisted report that reaches the manufacturer and regulator.')">Report this pack →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGULATORY STRIP -->
+<div class="reg">
+  <div class="wrap reg-inner">
+    <span class="reg-label">Designed to align with</span>
+    <span class="reg-badge">CDSCO</span>
+    <span class="reg-badge">PvPI</span>
+    <span class="reg-badge">DPDP Act 2023</span>
+    <span class="reg-badge">Schedule M</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Why this matters</span>
+      <h2 class="display">Two failures, one broken feedback loop</h2>
+      <p>Counterfeit medicines enter the supply chain because verification is hard. Harmful reactions go unrecorded because reporting is harder. Each failure hides the other.</p>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">~1 in 10</div>
+        <h3>Medicines in low- and middle-income countries are estimated to be substandard or falsified</h3>
+        <p>Counterfeits don't just fail to treat — they erode trust in every genuine pack on the shelf and put patients at direct risk.</p>
+        <span class="stat-src">SOURCE: WHO ESTIMATE, LMIC MARKETS</span>
+      </div>
+      <div class="stat">
+        <div class="stat-num">&lt; 1%</div>
+        <h3>Of adverse drug reactions are believed to reach formal pharmacovigilance systems</h3>
+        <p>When reactions go unreported, dangerous batches stay in circulation longer, and regulators act on a fraction of the real signal.</p>
+        <span class="stat-src">SOURCE: PUBLISHED UNDER-REPORTING ESTIMATES</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM -->
+<section id="platform">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The platform</span>
+      <h2 class="display">Four systems. One scan.</h2>
+      <p>Everything runs from a smartphone camera at the pharmacy counter or the patient's home — no new hardware, no training manual.</p>
+    </div>
+    <div class="cap-grid">
+      <div class="cap">
+        <div class="cap-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17A05D" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z"/></svg>
+        </div>
+        <h3>Dynamic QR verification</h3>
+        <p>Every pack carries a one-time, server-validated code. A genuine code verifies once for its patient; a cloned code exposes itself the moment it's scanned twice.</p>
+        <span class="cap-tag">Anti-counterfeit</span>
+      </div>
+      <div class="cap">
+        <div class="cap-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17A05D" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3>Computer-vision packaging checks</h3>
+        <p>The camera compares fonts, print quality, holograms and layout against the manufacturer's reference pack — catching fakes that copy the code but not the box.</p>
+        <span class="cap-tag">Anti-counterfeit</span>
+      </div>
+      <div class="cap">
+        <div class="cap-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17A05D" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>NLP-powered reaction reporting</h3>
+        <p>Patients describe what happened in their own words, in their own language. The system structures it into a regulator-ready report — no forms, no medical vocabulary required.</p>
+        <span class="cap-tag">Pharmacovigilance</span>
+      </div>
+      <div class="cap">
+        <div class="cap-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17A05D" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Tamper-evident audit log</h3>
+        <p>Every verification and every report is written to a blockchain-backed ledger. Manufacturers, regulators and auditors see the same record — and nobody can quietly edit it.</p>
+        <span class="cap-tag">Trust layer</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The loop</span>
+      <h2 class="display">From scan to safety signal</h2>
+    </div>
+    <div class="flow-grid">
+      <div class="flow-step">
+        <span class="flow-num">STEP 01</span>
+        <h3>Scan</h3>
+        <p>Patient or pharmacist scans the pack's QR with any smartphone.</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-num">STEP 02</span>
+        <h3>Verify</h3>
+        <p>Code status and packaging vision checks return a verdict in seconds.</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-num">STEP 03</span>
+        <h3>Report</h3>
+        <p>A suspect pack or a bad reaction becomes a structured report in one guided flow.</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-num">STEP 04</span>
+        <h3>Audit</h3>
+        <p>Every event lands in the tamper-evident log, visible to manufacturer and regulator.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section id="compliance">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Compliance by design</span>
+      <h2 class="display">Built inside India's regulatory frame, not around it</h2>
+      <p>Health data is sensitive and the rules are specific. PharmaGuard AI treats compliance as an architecture decision made on day one — not a retrofit before launch.</p>
+    </div>
+    <div class="comp-grid">
+      <div class="comp">
+        <span class="mono">DPDP Act 2023</span>
+        <h3>Consent-first data handling</h3>
+        <p>Patient reports are collected with explicit consent, minimised to what the report requires, and stored under India's Digital Personal Data Protection framework.</p>
+      </div>
+      <div class="comp">
+        <span class="mono">PvPI</span>
+        <h3>A pipeline into national pharmacovigilance</h3>
+        <p>Reports are structured to feed the Pharmacovigilance Programme of India, so a patient's one-tap report can become a national safety signal.</p>
+      </div>
+      <div class="comp">
+        <span class="mono">CDSCO</span>
+        <h3>Regulator-legible records</h3>
+        <p>Verification and incident logs are formatted for regulatory review, giving the Central Drugs Standard Control Organisation an evidence trail — not a data dump.</p>
+      </div>
+      <div class="comp">
+        <span class="mono">Schedule M</span>
+        <h3>Manufacturer-side traceability</h3>
+        <p>Batch-level verification data maps to good-manufacturing-practice requirements, helping manufacturers demonstrate control over what leaves their line.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Where we are</span>
+      <h2 class="display">A staged build, not a promised platform</h2>
+      <p>PharmaGuard AI is at prototype stage, developed for grant-backed deployment. The roadmap is deliberately narrow: prove the core loop, then pilot it.</p>
+    </div>
+    <div class="road">
+      <div class="phase">
+        <span class="phase-tag">PHASE 1A · IN PROGRESS</span>
+        <h3>Prototype &amp; compliance foundation</h3>
+        <ul>
+          <li>Working QR verification and scan-to-verdict flow</li>
+          <li>NLP reporting prototype for patient-language ADR capture</li>
+          <li>DPDP-compliant consent and data-handling architecture</li>
+          <li>Reference-image pipeline for packaging vision checks</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <span class="phase-tag">PHASE 1B · NEXT</span>
+        <h3>Pilot deployment</h3>
+        <ul>
+          <li>Live pilot with partner pharmacies and one manufacturer batch line</li>
+          <li>Field validation of counterfeit-detection accuracy</li>
+          <li>First structured ADR reports routed toward PvPI</li>
+          <li>Audit-log review with regulatory stakeholders</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="wrap">
+    <span class="eyebrow">Work with us</span>
+    <h2 class="display">Put your batches on the ledger</h2>
+    <p>We're onboarding pilot partners — pharmacies, manufacturers and institutions who want counterfeit detection and reaction reporting in the same scan.</p>
+    <a class="btn btn-solid" href="mailto:hello@pharmaguard.ai">Request pilot access</a>
+  </div>
+</section>
+
+</main>
+
+<!-- DEMO PLAYER MODAL -->
+<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="PharmaGuard AI product demo">
+  <div class="player">
+    <div class="player-top">
+      <span class="eyebrow">PharmaGuard AI · Product demo</span>
+      <button class="vclose" id="vclose" onclick="closeDemo()">CLOSE ✕</button>
+    </div>
+    <div class="screen" id="screen">
+      <!-- To use a real generated video (Veo / Sora / Runway export), set VIDEO_SRC in the script below.
+           The animated scenes will be replaced by the MP4 automatically. -->
+      <div class="grain" aria-hidden="true"></div>
+
+      <div class="scene" data-dur="8200">
+        <div class="ph"><div class="vf"><div class="mini-qr"></div><div class="vline"></div></div></div>
+        <div class="sc-title">Any smartphone. Any pack.</div>
+        <div class="sc-sub">Scene 01 · The patient scans the QR at the counter or at home</div>
+      </div>
+
+      <div class="scene" data-dur="8600">
+        <div class="stamp g">✓ VERIFIED GENUINE</div>
+        <div class="vrows">
+          <div><span>Product</span><span>Amoxicillin 500 mg</span></div>
+          <div><span>Batch</span><span>AMX-2416-B · Unit II, Baddi</span></div>
+          <div><span>Scan history</span><span>First patient scan</span></div>
+        </div>
+        <div class="sc-sub">Scene 02 · Server-validated code + packaging vision check, in seconds</div>
+      </div>
+
+      <div class="scene" data-dur="8600">
+        <div class="stamp r">✕ NOT VERIFIED</div>
+        <div class="vrows">
+          <div><span>Code status</span><span>Already redeemed 47×</span></div>
+          <div><span>Packaging</span><span>Font &amp; hologram mismatch</span></div>
+          <div><span>Risk flag</span><span>Possible counterfeit</span></div>
+        </div>
+        <div class="sc-sub">Scene 03 · A cloned code exposes itself the moment it repeats</div>
+      </div>
+
+      <div class="scene" data-dur="9000">
+        <div class="morph">
+          <div class="bubble">"Dava lene ke baad chakkar aa rahe hain aur raat se bukhaar hai…"</div>
+          <div class="arrow">─▶</div>
+          <div class="rcard"><b>ADR REPORT · DRAFTED</b>Reaction: dizziness, fever<br>Onset: &lt; 24 h post-dose<br>Suspect drug: Amoxicillin 500 mg<br>Route: → PvPI-ready format</div>
+        </div>
+        <div class="sc-title">Their words become a report</div>
+        <div class="sc-sub">Scene 04 · NLP structures patient language into a regulator-ready record</div>
+      </div>
+
+      <div class="scene" data-dur="9600">
+        <div class="chain" aria-hidden="true">
+          <div class="blk">SCAN</div><div class="lnk"></div>
+          <div class="blk">VRFY</div><div class="lnk"></div>
+          <div class="blk">RPT</div><div class="lnk"></div>
+          <div class="blk">AUDT</div><div class="lnk"></div>
+          <div class="blk">SEAL</div>
+        </div>
+        <div class="sc-title">Nothing edited. Nothing lost.</div>
+        <div class="sc-sub">Scene 05 · Every event sealed to a tamper-evident audit ledger</div>
+      </div>
+    </div>
+    <div class="player-bar">
+      <button class="pbtn" id="pplay" onclick="togglePlay()">❚❚ PAUSE</button>
+      <button class="pbtn alt" id="psound" onclick="toggleSound()" aria-pressed="true">🔊 MUSIC</button>
+      <button class="pbtn alt" id="pvoice" onclick="toggleVoice()" aria-pressed="true">🎙 VOICE</button>
+      <button class="pbtn alt" onclick="prevScene()">◂ BACK</button>
+      <button class="pbtn alt" onclick="nextScene()">SKIP ▸</button>
+      <div class="segs" id="segs"></div>
+      <span class="pcaption" id="pcap">SCENE 01 / 05</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <p>© 2026 PharmaGuard AI. Prototype stage — not a substitute for regulatory verification or medical advice.</p>
+    <span class="mono">BUILT IN BENGALURU · v0.1</span>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(btn){
+  const links=document.getElementById('nav-links');
+  const open=links.classList.toggle('open');
+  btn.setAttribute('aria-expanded',open);
+}
+function runScan(kind){
+  const strip=document.getElementById('strip');
+  const ok=document.getElementById('res-ok'),bad=document.getElementById('res-bad');
+  const b1=document.getElementById('btn-ok'),b2=document.getElementById('btn-bad');
+  ok.classList.remove('show');bad.classList.remove('show');
+  b1.disabled=true;b2.disabled=true;
+  strip.classList.remove('scanning');void strip.offsetWidth;strip.classList.add('scanning');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const delay=reduced?0:1500;
+  setTimeout(()=>{
+    strip.classList.remove('scanning');
+    if(kind==='ok'){
+      ok.classList.add('show');
+      document.getElementById('meta-batch').textContent='BATCH AMX-2416-B';
+      document.getElementById('meta-exp').textContent='EXP 03 / 2028';
+    }else{
+      bad.classList.add('show');
+      document.getElementById('meta-batch').textContent='BATCH UNRESOLVED';
+      document.getElementById('meta-exp').textContent='EXP UNRESOLVED';
+    }
+    b1.disabled=false;b2.disabled=false;
+  },delay);
+}
+/* ===== DEMO PLAYER =====
+   To use a real generated video instead of the animated scenes,
+   set VIDEO_SRC to an MP4 URL (Veo / Sora / Runway export): */
+const VIDEO_SRC = "";
+
+/* ===== MUSIC BED — uploaded track "Calculated Precision" (embedded) ===== */
+let soundOn=true,volTimer=null;
+const psound=document.getElementById('psound');
+const bgm=document.getElementById('bgm');
+const MUSIC_BASE=.24; // minimal bed; ducks further under narration
+function audioInit(){if(bgm)bgm.volume=0;}
+function setMaster(v,t=0.6){
+  if(!bgm)return;
+  const target=Math.max(0,Math.min(1,v*MUSIC_BASE));
+  clearInterval(volTimer);
+  const steps=Math.max(1,Math.round(t*30));
+  const from=bgm.volume,d=(target-from);let n=0;
+  volTimer=setInterval(()=>{n++;
+    bgm.volume=Math.max(0,Math.min(1,from+d*(n/steps)));
+    if(n>=steps){bgm.volume=target;clearInterval(volTimer);}
+  },33);
+}
+function startPad(){if(!bgm)return;bgm.loop=true;bgm.play().catch(()=>{});}
+function rewindPad(){if(bgm){try{bgm.currentTime=0}catch(e){}}}
+function stopPad(){if(bgm)bgm.pause();}
+function sceneAudio(i){/* stingers removed: music bed only */}
+
+/* ===== NARRATION — continuous female voiceover =====
+   Default: the browser's speech engine, forced to a female voice.
+   For a truly human-grade voice, generate one clip per scene in
+   ElevenLabs (or similar) and paste the five URLs below — the player
+   then plays them back-to-back and syncs scenes to each clip: */
+const VO_FILES = ["","","","",""]; // e.g. ["assets/vo-1.mp3", ...]
+
+const NARRATION = [
+  "Across India, millions of medicine packs change hands every day, and it is almost impossible to tell which ones are genuine. PharmaGuard A I changes that, with the phone already in your pocket. Just scan the pack.",
+  "Within seconds, the code and the packaging are verified, and the result is clear. This pack is genuine. First scan, fully traced.",
+  "But when a counterfeit appears, it exposes itself instantly. This code has already been redeemed forty seven times, and the packaging does not match.",
+  "And if a medicine ever causes harm, patients simply describe it in their own words, while PharmaGuard quietly shapes them into a regulator ready report.",
+  "Every scan and every report is sealed into a tamper evident ledger. Nothing edited. Nothing lost. PharmaGuard A I. Verify every pack. Report every reaction."
+];
+
+let voiceOn=true,chosenVoice=null,voClip=null;
+const pvoice=document.getElementById('pvoice');
+const FEM=/(female|neerja|heera|swara|aria|jenny|zira|sonia|libby|hazel|susan|samantha|victoria|karen|moira|tessa|fiona|kate|serena|veena|isha|priya|natasha)/i;
+
+function pickVoice(){
+  if(!('speechSynthesis' in window))return;
+  const vs=speechSynthesis.getVoices();
+  chosenVoice =
+    vs.find(v=>/en[-_]IN/i.test(v.lang)&&FEM.test(v.name)) ||
+    vs.find(v=>/^en/i.test(v.lang)&&FEM.test(v.name)) ||
+    vs.find(v=>/Google UK English Female/i.test(v.name)) ||
+    vs.find(v=>/en[-_]IN/i.test(v.lang)) ||
+    vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+
+function stopVoice(){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  if(voClip){voClip.onended=null;voClip.onerror=null;voClip.pause();voClip=null;}
+}
+
+/* ===== PLAYER ENGINE ===== */
+const vmodal=document.getElementById('vmodal');
+const scenes=[...document.querySelectorAll('#screen .scene')];
+const segsWrap=document.getElementById('segs');
+const pcap=document.getElementById('pcap');
+const pplay=document.getElementById('pplay');
+const reducedM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur=0,tmr=null,playing=false,lastFocus=null;
+
+scenes.forEach(()=>{const s=document.createElement('div');s.className='seg';s.innerHTML='<i></i>';segsWrap.appendChild(s)});
+const segs=[...segsWrap.children];
+
+function segDur(i){
+  if(voiceOn)return Math.max(4,NARRATION[i].split(/\s+/).length/2.4+0.4);
+  return +scenes[i].dataset.dur/1000;
+}
+function renderVisuals(){
+  scenes.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  segs.forEach((s,i)=>{
+    s.classList.remove('live','done');
+    if(i<cur)s.classList.add('done');
+    if(i===cur&&playing){s.style.setProperty('--segdur',segDur(i)+'s');void s.offsetWidth;s.classList.add('live');}
+    if(i===cur&&!playing)s.classList.add('done');
+  });
+  pcap.textContent='SCENE 0'+(cur+1)+' / 0'+scenes.length;
+}
+function finishPlayback(){
+  playing=false;pplay.textContent='↺ REPLAY';
+  clearTimeout(tmr);stopPad();setMaster(0,1.2);
+  renderVisuals();
+}
+function armTimer(){
+  clearTimeout(tmr);
+  tmr=setTimeout(()=>{
+    if(cur<scenes.length-1){cur++;renderVisuals();sceneAudio(cur);armTimer();}
+    else finishPlayback();
+  },+scenes[cur].dataset.dur);
+}
+function playClips(from){
+  const step=i=>{
+    if(!playing)return;
+    if(i>=scenes.length){finishPlayback();return;}
+    voClip=new Audio(VO_FILES[i]);
+    voClip.onplay=()=>{cur=i;renderVisuals();sceneAudio(i);};
+    voClip.onended=()=>step(i+1);
+    voClip.onerror=()=>step(i+1);
+    voClip.play().catch(()=>step(i+1));
+  };
+  step(from);
+}
+/* Narration drives the scenes: utterances are queued back-to-back, and each
+   one's onstart switches the visuals — so the voice never breaks between
+   scenes and the picture always matches the words. */
+function startPlayback(from){
+  cur=from;
+  if(voiceOn&&VO_FILES.some(Boolean)){renderVisuals();playClips(from);return;}
+  if(voiceOn&&('speechSynthesis' in window)){
+    speechSynthesis.cancel();
+    renderVisuals();sceneAudio(cur);
+    for(let i=from;i<scenes.length;i++){
+      const u=new SpeechSynthesisUtterance(NARRATION[i]);
+      if(chosenVoice)u.voice=chosenVoice;
+      u.rate=.97;u.pitch=1.03;u.volume=1;
+      u.onstart=()=>{if(!playing)return;cur=i;renderVisuals();if(i!==from)sceneAudio(i);};
+      if(i===scenes.length-1)u.onend=()=>{if(playing)finishPlayback();};
+      speechSynthesis.speak(u);
+    }
+    return;
+  }
+  renderVisuals();sceneAudio(cur);armTimer();
+}
+function bedLevel(){return voiceOn?.4:.9;}
+
+function openDemo(){
+  lastFocus=document.activeElement;
+  vmodal.classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('vclose').focus();
+  if(VIDEO_SRC){
+    const scr=document.getElementById('screen');
+    scr.innerHTML='<video controls autoplay playsinline src="'+VIDEO_SRC+'"></video>';
+    document.querySelector('.player-bar').style.display='none';
+    return;
+  }
+  audioInit();
+  rewindPad();
+  pickVoice();
+  cur=0;playing=!reducedM;
+  pplay.textContent=playing?'❚❚ PAUSE':'▶ PLAY';
+  if(playing&&soundOn){startPad();setMaster(bedLevel(),.8);}
+  if(playing)startPlayback(0);else renderVisuals();
+}
+function closeDemo(){
+  vmodal.classList.remove('open');
+  document.body.style.overflow='';
+  playing=false;clearTimeout(tmr);tmr=null;
+  stopVoice();stopPad();setMaster(0,.15);
+  scenes.forEach(s=>s.classList.remove('on'));
+  segs.forEach(s=>s.classList.remove('live','done'));
+  pplay.textContent='❚❚ PAUSE';
+  if(lastFocus)lastFocus.focus();
+}
+function togglePlay(){
+  if(!playing&&pplay.textContent.includes('REPLAY')){
+    cur=0;playing=true;pplay.textContent='❚❚ PAUSE';
+    if(soundOn){startPad();setMaster(bedLevel(),.5);}
+    startPlayback(0);return;
+  }
+  playing=!playing;
+  pplay.textContent=playing?'❚❚ PAUSE':'▶ PLAY';
+  if(playing){
+    if(soundOn){startPad();setMaster(bedLevel(),.5);}
+    startPlayback(cur); // restarts current scene's narration from its top
+  }else{
+    clearTimeout(tmr);stopVoice();stopPad();setMaster(0,.25);
+    renderVisuals();
+  }
+}
+function jump(i){
+  cur=Math.max(0,Math.min(scenes.length-1,i));
+  if(playing){clearTimeout(tmr);stopVoice();startPlayback(cur);}
+  else renderVisuals();
+}
+function nextScene(){jump(cur+1);}
+function prevScene(){jump(cur-1);}
+function toggleSound(){
+  soundOn=!soundOn;
+  psound.textContent=soundOn?'🔊 MUSIC':'🔇 MUSIC OFF';
+  psound.setAttribute('aria-pressed',soundOn);
+  if(soundOn&&playing){startPad();setMaster(bedLevel(),.3);}
+  else{stopPad();setMaster(0,.3);}
+}
+function toggleVoice(){
+  voiceOn=!voiceOn;
+  pvoice.textContent=voiceOn?'🎙 VOICE':'🎙 VOICE OFF';
+  pvoice.setAttribute('aria-pressed',voiceOn);
+  if(playing){clearTimeout(tmr);stopVoice();if(soundOn)setMaster(bedLevel(),.4);startPlayback(cur);}
+}
+document.addEventListener('keydown',e=>{
+  if(!vmodal.classList.contains('open'))return;
+  if(e.key==='Escape')closeDemo();
+  if(e.key==='ArrowRight')nextScene();
+  if(e.key==='ArrowLeft')prevScene();
+  if(e.key===' '&&!VIDEO_SRC){e.preventDefault();togglePlay();}
+});
+vmodal.addEventListener('click',e=>{if(e.target===vmodal)closeDemo();});
+
+// close mobile menu on link tap
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{
+  document.getElementById('nav-links').classList.remove('open');
+}));
+</script>
+<audio id="bgm" loop preload="auto" src="Calculated_Precision.mp3"></audio>
+</body>
+</html>
