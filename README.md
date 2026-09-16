@@ -1,25 +1,25 @@
-# Biotech PRoject
+# Biotech Sequence Toolkit 🧬
 
-Welcome to biotech project! This project is hosted on GitHub Pages and contains the code for my web application.
+A lightweight web utility for essential bioinformatics calculations, including sequence length, GC-content estimation, and complementary strand generation.
 
-## 🚀 Live Demo
+## 🚀 Features
 
-You can view the live site here:
-👉 **[https://akshaymore7990-ctrl.github.io/index.html/](https://akshaymore7990-ctrl.github.io/index.html/)**
+* **GC-Content Calculation:** Quickly estimate GC ratio for DNA stability assessment.
+* **Sequence Cleanup:** Automatically filters out non-nucleotide characters.
+* **Complement Generation:** Generates the complementary DNA strand instantly.
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **HTML5** - Page structure and content
-* **CSS3** - Styling and layout design
-* **JavaScript** - Interactive functionality
+* **HTML5** - Interface structure
+* **CSS3** - Page styling
+* **JavaScript** - Sequence parsing and bioinformatics logic
 
 ---
 
-## 📂 Repository Structure
+## 💻 Local Setup
 
-```text
-index.html/
-├── index.html     # Main HTML document
-└── README.md      # Project documentation
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/YOUR-USERNAME/biotech-sequence-toolkit.git](https://github.com/YOUR-USERNAME/biotech-sequence-toolkit.git)
