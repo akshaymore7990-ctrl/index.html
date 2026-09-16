@@ -1,4 +1,4 @@
-# My Website Project
+# Biotech PRoject
 
 Welcome to my website repository! This project is hosted on GitHub Pages and contains the code for my web application.
 
